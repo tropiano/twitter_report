@@ -4,7 +4,7 @@ set -o errexit
 
 pip install --upgrade pip
 pip install --force-reinstall -U setuptools
-sudo apt-get install --reinstall python-pkg-resources
+apt-get install --reinstall python-pkg-resources
 
 poetry install
 
