@@ -4,7 +4,6 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events
 from django.utils import timezone
 from django_apscheduler.models import DjangoJobExecution
 import sys
-import os
 import json
 import tweepy
 from twitter_report import settings
