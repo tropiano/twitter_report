@@ -1,0 +1,20 @@
+databases:
+  - name: twitter_report
+    databaseName: twitter_report
+    user: twitter_report
+
+services:
+  - type: web
+    name: twitter_report
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn twitter_report.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: twitter_report
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
