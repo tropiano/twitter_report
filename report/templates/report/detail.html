@@ -1,0 +1,130 @@
+{% extends "report/base.html" %} {% block content %}
+<div class="container">
+  <br />
+  <div class="chartjs-size-monitor">
+    <div class="chartjs-size-monitor-expand"><div class=""></div></div>
+    <div class="chartjs-size-monitor-shrink"><div class=""></div></div>
+  </div>
+  <div
+    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom"
+  >
+    <h1 class="h2">Stats for {{twitter_user.user_name}}</h1>
+  </div>
+  <div class="card-deck">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Followers</h4>
+        <p class="card-text">{{twitter_user.twitter_user_stats_set.last.followers}}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Tweets</h4>
+        <p class="card-text">{{twitter_user.twitter_user_stats_set.last.tweets}} in the last day</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Replies</h4>
+        <p class="card-text">{{twitter_user.twitter_user_stats_set.last.replies}} in the last day</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Likes</h4>
+        <p class="card-text">{{twitter_user.twitter_user_stats_set.last.likes}} in the last day</p>
+      </div>
+    </div>
+  </div>
+  <div
+    class="chart-container"
+    style="position: relative; height: 40vh; width: 100%"
+  >
+    <canvas
+      class="my-4 w-100 chartjs-render-monitor"
+      id="line-chart"
+      style="display: block; width: 599px; height: 10px"
+      width="599"
+      height="100"
+    ></canvas>
+  </div>
+    <h2>All data</h2>
+    <div class="table-responsive">
+      <table class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Tweets</th>
+            <th scope="col">Followers</th>
+            <th scope="col">Retweets</th>
+            <th scope="col">Replies</th>
+            <th scope="col">Likes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for stat in twitter_user.twitter_user_stats_set.all reversed %}
+          <tr>
+            <th scope="row">{{stat.timestamp|date:"d M Y"}}</th>
+            <td>{{stat.tweets}}</td>
+            <td>{{stat.followers}}</td>
+            <td>{{stat.retweets}}</td>
+            <td>{{stat.replies}}</td>
+            <td>{{stat.likes}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    console.log({{twitter_user.twitter_user_stats_set.second.followers}})
+    data = []
+    labels = []
+    var top5 = document.getElementById("line-chart").getContext("2d");
+    {% for stat in twitter_user.twitter_user_stats_set.all %}
+      data.push({{stat.followers}})
+      labels.push("{{stat.timestamp|date:"d M"}}")
+    {% endfor %}
+    var chart = new Chart(top5, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Followers",
+            backgroundColor: "#CE3B21",
+            borderColor: "rgb(255, 99, 132)",
+            data: data
+          },
+        ],
+      },
+      options: {
+        legend: {
+          display: false,
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            display: false,
+         },
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: false,
+                callback: function(value, index, values) {
+                  return '';
+              },
+              },
+              gridLines: {
+                display: false,
+                drawBorder: false,
+            },
+            },
+          ],
+        },
+      },
+    });
+  </script>
+  {% endblock content%}
+</div>

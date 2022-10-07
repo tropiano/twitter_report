@@ -1,0 +1,79 @@
+{% extends "report/base.html" %} {% block content %}
+<div class="container">
+  <br />
+  <h2 class="text-center">Twitter Users</h2>
+  <br />
+  <div class="card-deck">
+    {% for usr in object_list %}
+    <div class="card shadow">
+      <div class="card-body">
+        <a href="{% url 'user_stats' usr.pk %}">
+        <h4 class="card-title">{{ usr.user_name }}</h4>
+        <h6 class="card-subtitle mb-2 text-muted">
+          {{ usr.twitter_user_stats_set.last.followers }} followers
+        </h6>
+        <div
+          class="chart-container"
+          style="position: relative; height: 15vh; width: 14vw"
+        >
+          <canvas id="line-chart-{{usr.user_name}}"></canvas>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<script>
+  {% for usr in object_list %}
+  data = []
+  labels = []
+  var top5 = document.getElementById("line-chart-{{usr.user_name}}").getContext("2d");
+  {% for stat in usr.twitter_user_stats_set.all %}
+    data.push({{stat.followers}})
+    labels.push("{{stat.timestamp|date:"d M"}}")
+  {% endfor %}
+  console.log(data)
+  console.log(labels)
+  var chart = new Chart(top5, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Followers",
+          backgroundColor: "#CE3B21",
+          borderColor: "rgb(255, 99, 132)",
+          data: data
+        },
+      ],
+    },
+    options: {
+      legend: {
+        display: false,
+      },
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          display: false,
+       },
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: false,
+              callback: function(value, index, values) {
+                return '';
+            },
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false,
+          },
+          },
+        ],
+      },
+    },
+  });
+  {% endfor %}
+</script>
+{% endblock content%}
