@@ -82,7 +82,7 @@ if not DEBUG:
     DB_PWD = os.environ.get('DB_PWD', default='password')
 else:
     DB_USER = 'postgres'
-    DB_PWD = ''
+    DB_PWD = 'postgres'
 
 DATABASES = {
     'default': {
