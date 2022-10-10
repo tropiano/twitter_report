@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
+DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -52,7 +52,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'twitter_report.urls'
@@ -78,8 +77,12 @@ WSGI_APPLICATION = 'twitter_report.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DB_USER = os.environ.get('DB_USER', default='user')
-DB_PWD = os.environ.get('DB_PWD', default='password')
+if not DEBUG:
+    DB_USER = os.environ.get('DB_USER', default='user')
+    DB_PWD = os.environ.get('DB_PWD', default='password')
+else:
+    DB_USER = 'postgres'
+    DB_PWD = 'postgres'
 
 DATABASES = {
     'default': {
@@ -137,9 +140,6 @@ if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# Turn on WhiteNoise storage backend that takes care of compressing static files
-# and creating unique names for each version so they can safely be cached forever.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
