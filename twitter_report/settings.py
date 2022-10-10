@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('SECRET_KEY', default='True')
 
 # add digitalocean IP address and localhost
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '67.205.133.61']
