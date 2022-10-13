@@ -1,6 +1,20 @@
 import datetime
 import sqlite3
 from sqlite3 import Error
+import psycopg2
+import sys
+import os
+import json
+import tweepy
+
+DEBUG = False
+
+if not DEBUG:
+    DB_USER = os.environ.get('DB_USER', default='user')
+    DB_PWD = os.environ.get('DB_PWD', default='password')
+else:
+    DB_USER = 'postgres'
+    DB_PWD = 'postgres'
 
 
 def get_user_data(client=None, user_name='Renate_KE'):
@@ -37,17 +51,27 @@ def get_user_data(client=None, user_name='Renate_KE'):
     return user_data
 
 
-def create_connection(db_file):
+def create_connection(db_name):
     """ create a database connection to the SQLite database
         specified by db_file
     :param db_file: database file
     :return: Connection object or None
     """
     conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except Error as e:
-        print(e)
+    if db_name.endswith(".sqlite3"):
+        try:
+            conn = sqlite3.connect(db_name)
+        except Error as e:
+            print(e)
+    else:
+        try:
+            conn = psycopg2.connect(user=DB_USER,
+                                    password=DB_PWD,
+                                    host="localhost",
+                                    port="5432",
+                                    database=db_name)
+        except Error as e:
+            print(e)
 
     return conn
 
@@ -59,7 +83,7 @@ def get_user_id(conn, print_query=False):
     :param project:
     :return: project id
     """
-    sql = f'''SELECT user_name, id FROM 
+    sql = f'''SELECT user_name, id FROM
               report_twitter_user'''
     cur = conn.cursor()
 
@@ -80,11 +104,22 @@ def update_stats(conn, data, print_query=False):
     """
     set_keys = ",".join([f"{k}" for k in data.keys()])
     set_lines = ",".join([f":{k}" for k in data.keys()])
+    set_vals = ",".join([f"%({k})s" for k in data.keys()])
 
-    sql = f'''INSERT OR IGNORE INTO 
-              report_twitter_user_stats({set_keys})
-              VALUES ({set_lines})
-              '''
+    postgres_db = type(conn) == psycopg2.extensions.connection
+
+    if not postgres_db:
+        sql = f'''INSERT OR IGNORE INTO
+                    report_twitter_user_stats({set_keys})
+                    VALUES ({set_lines})
+                    '''
+    else:
+        sql = f'''INSERT INTO
+                report_twitter_user_stats({set_keys})
+                VALUES ({set_vals})
+                ON CONFLICT DO NOTHING
+                '''
+
     if print_query:
         print(sql)
 
@@ -96,6 +131,21 @@ def update_stats(conn, data, print_query=False):
 
 def main():
 
+    db = sys.argv[1]
+
+    with open('credentials.json', 'r') as fp:
+        api_cred = json.load(fp)
+
+    CONSUMER_KEY = api_cred["CONSUMER_KEY"]
+    CONSUMER_SECRET = api_cred["CONSUMER_SECRET"]
+    OAUTH_TOKEN = api_cred["OAUTH_TOKEN"]
+    OAUTH_TOKEN_SECRET = api_cred["OAUTH_SECRET"]
+    BEARER_TOKEN = api_cred["BEARER_TOKEN"]
+
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
+    client = tweepy.Client(bearer_token=BEARER_TOKEN)
+
     # insert data in SQLite
     conn = create_connection(db)
 
@@ -104,11 +154,14 @@ def main():
     with conn:
         users = get_user_id(conn)
     user_names = list(users.keys())
-    print(user_names)
+    print("Updating user stats for the following users")
+    for n in user_names:
+        print(n)
 
     # get the user stats
     for user in user_names:
-        user_data_all.append(get_user_data(user))
+        user_data_all.append(get_user_data(
+            client=client, user_name=user))
 
     # merge user and its id
     for data in user_data_all:
