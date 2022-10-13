@@ -131,6 +131,10 @@ def update_stats(conn, data, print_query=False):
 
 def main():
 
+    print(f"DEBUG mode {DEBUG}")
+    print(f"DB user {DB_USER}")
+    print(f"DB pwd {DB_PWD}")
+
     db = sys.argv[1]
     credentials_file = sys.argv[2]
     with open(credentials_file, 'r') as fp:
