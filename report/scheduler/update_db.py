@@ -132,8 +132,8 @@ def update_stats(conn, data, print_query=False):
 def main():
 
     db = sys.argv[1]
-
-    with open('credentials.json', 'r') as fp:
+    credentials_file = sys.argv[2]
+    with open(credentials_file, 'r') as fp:
         api_cred = json.load(fp)
 
     CONSUMER_KEY = api_cred["CONSUMER_KEY"]
