@@ -28,7 +28,7 @@
   data = []
   labels = []
   var top5 = document.getElementById("line-chart-{{usr.user_name}}").getContext("2d");
-  {% for stat in usr.twitter_user_stats_set.all %}
+  {% for stat in usr.twitter_user_stats_set.all|slice:":15" %}
     data.push({{stat.followers}})
     labels.push("{{stat.timestamp|date:"d M"}}")
   {% endfor %}
