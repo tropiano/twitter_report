@@ -8,17 +8,18 @@
     <div class="col mb-4">
       <div class="card">
         <div class="card-body">
-          <a href="{% url 'user_stats' usr.pk %}"></a>
-          <h4 class="card-title">{{ usr.user_name }}</h4>
-          <h6 class="card-subtitle mb-2 text-muted">
-            {{ usr.twitter_user_stats_set.last.followers }} followers
-          </h6>
-          <div
-            class="chart-container"
-            style="position: relative; height: 15vh; width: 14vw"
-          >
-            <canvas id="line-chart-{{usr.user_name}}"></canvas>
-          </div>
+          <a href="{% url 'user_stats' usr.pk %}">
+            <h4 class="card-title">{{ usr.user_name }}</h4>
+            <h6 class="card-subtitle mb-2 text-muted">
+              {{ usr.twitter_user_stats_set.last.followers }} followers
+            </h6>
+            <div
+              class="chart-container"
+              style="position: relative; height: 15vh; width: 20vw"
+            >
+              <canvas id="line-chart-{{usr.user_name}}"></canvas>
+            </div>
+          </a>
         </div>
       </div>
     </div>
