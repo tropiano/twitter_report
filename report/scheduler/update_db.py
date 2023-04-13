@@ -34,13 +34,17 @@ def get_user_data(client=None, user_name='Renate_KE'):
     retweets = 0
     likes = 0
     replies = 0
-    for t in tweets.data:
-        retweets += t.data["public_metrics"]["retweet_count"]
-        likes += t.data["public_metrics"]["like_count"]
-        replies += t.data["public_metrics"]["reply_count"]
-        # print(t.data["public_metrics"])
+    tot_tweets = 0
 
-    user_data["tweets"] = len(tweets.data)
+    if tweets.data:
+        tot_tweets = len(tweets.data)
+        for t in tweets.data:
+            retweets += t.data["public_metrics"]["retweet_count"]
+            likes += t.data["public_metrics"]["like_count"]
+            replies += t.data["public_metrics"]["reply_count"]
+            # print(t.data["public_metrics"])
+
+    user_data["tweets"] = tot_tweets
     user_data["retweets"] = retweets
     user_data["likes"] = likes
     user_data["replies"] = replies
